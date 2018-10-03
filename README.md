@@ -29,5 +29,39 @@ Isso irá baixar o projeto para workspace/src/github.com/jmhal/slack. Agora, dev
 $ go install github.com/jmhal/slackaws
 ````
 
-Lembrando que deve ser executado no terminal no qual a GOPATH foi configurada. No diretório _workspace/bin_ estará o binário *slackaws*. Veja que não precisamos informar o caminho completo (_/home/usuario/workspace/src/github.com/jmhal/slackaws_). Com a variável configurada, basta mencionar _github/jmhal/slackaws_).
+Lembrando que deve ser executado no terminal no qual a GOPATH foi configurada. No diretório _workspace/bin_ estará o binário *slackaws*. Veja que não precisamos informar o caminho completo (_/home/usuario/workspace/src/github.com/jmhal/slackaws_). Com a variável configurada, basta mencionar _github/jmhal/slackaws_). O executável criado estará na past _workspace/bin_.
 
+# Como submeter alterações.
+
+Uma vez configurado o ambiente, podemos fazer alterações no código e submetê-las. A primeira coisa a fazer é sempre verificar se existiram mudanças no repositório antes de começar a fazer novas alterações.
+
+```
+$ cd $GOPATH/src/github.com/jmhal/slackaws
+$ git pull
+Already up to date.
+```
+
+Agora vamos fazer qualquer mudança nos arquivos. Por exemplo, adicione um comentário na primeira linha do arquivo _slackaws.go_ ou coloque uma nova linha vazia ao final do arquivo. Ao finalizar a alteração, vamos submetê-la.
+
+```
+$ git add slackaws.go
+$ git commit -m "Testando submissao."
+```
+
+Caso você nunca tenha utilizado GitHub no terminal antes, irá surgir uma mensagem informado que você não configurou o usuário e e-mail. Para tal, basta executar os comandos abaixo, alterando os valores para o e-mail e usuário da sua conta no GitHub
+
+```
+$ git config --global user.name "usuario"
+$ git config --global user.email "e-mail"
+$ git commit -m "Testando submissao."
+```
+
+O último comando irá submeter as alterações com a mensagem explicando o que foi feito. Você pode omitir o parâmetro _-m_. O que vai acontecer é que o editor de texto padrão do seu sistema (_nano_ ou _vim_) será carregado, você terá que descrever no texto as alterações e depois salvar o arquivo. Essa opção é melhor quando as alterações forem extensas.
+
+Até agora, todas as mudanças foram feitas na cópia local. Precisamos encaminhá-las para o GitHub.
+
+```
+$ git push
+```
+
+Informe seu usuário e senha do GitHub. Pronto, as mudanças serão submetidas.
