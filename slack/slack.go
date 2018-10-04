@@ -1,5 +1,5 @@
 package slack
-
+//Alterei
 func UsersList(slackURL string) ([]string) {
    users := []string{slackURL}
    return users
