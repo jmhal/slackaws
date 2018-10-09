@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	token = "xoxb-424210374210-425256236567-2ZNtzcbyZ4wNnvSuNucziZK5"
+	token = "add your token"
 )
 
 func main() {
