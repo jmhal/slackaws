@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bluele/slack"
+	"fmt"
 )
 
 const (
@@ -10,6 +10,10 @@ const (
 )
 
 func main() {
+
+	UsersList(token);
+
+	/*
 	api := slack.New(token)
 	users, err := api.UsersList()
 	if err != nil {
@@ -17,5 +21,19 @@ func main() {
 	}
 	for _, user := range users {
 		fmt.Println(user.Id, user.Name)
+	}
+	*/
+}
+
+func UsersList(workspaceToken string) {
+	api := slack.New(workspaceToken)
+	users, err := api.UsersList()
+	if err != nil {
+		panic(err)
+	}
+	for _, user := range users {
+		if(user.Name != "slackbot" && user.Name != "slackaws") {
+			fmt.Println(user.Name)
+		}
 	}
 }

@@ -1,12 +1,32 @@
 package slack
 
-func UsersList(slackURL string, workspaceToken string) ([]string) {
-   // Esta função deve ser implementada. Deve acessar a API do Slack e retornar uma lista de usuários do grupo.
-   users := []string{slackURL, workspaceToken}
-   return users
+import (
+	"github.com/bluele/slack"
+)
+
+func UsersList(workspaceToken string) {
+	api := slack.New(workspaceToken)
+	users, err := api.UsersList()
+	if err != nil {
+		panic(err)
+	}
+	for _, user := range users {
+		if(user.Name != "slackbot" && user.Name != "slackaws") {
+			fmt.Println(user.Name)
+		}
+	}
 }
 
-func SendMessageToUser(user string, message string) (string) {
-   // Envia uma mensagem para o usuário.
-   return user + ":" + message
+func SendMessageToUser(name string, message string, workspaceToken string) (string) {
+	api := slack.New(token)
+    users, err := api.UsersList()
+	if err != nil {
+		panic(err)
+	}
+    for _, user := range users {
+		if(user.Name == name) {
+			api.ChatPostMessage(user.Id, message, nil)
+		}
+	}
+   return name + ":" + message
 }
