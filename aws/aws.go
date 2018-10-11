@@ -9,38 +9,36 @@ import (
 
 func CreateInstance(Imagem string, Instancia string, NameInstancia string) {
 
-svc := ec2.New(session.New(&aws.Config{Region: aws.String("us-west-1")}))
+   svc := ec2.New(session.New(&aws.Config{Region: aws.String("us-west-1")}))
+   runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
+      ImageId:      aws.String(Imagem),
+      InstanceType: aws.String(Instancia),
+      MinCount:     aws.Int64(1),
+      MaxCount:     aws.Int64(1),
+   })
 
-  runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
+   if err != nil {
+      log.Println("Could not create instance", err)
+      return
+   }
 
-        ImageId:      aws.String(Imagem),
-        InstanceType: aws.String(Instancia),
-        MinCount:     aws.Int64(1),
-        MaxCount:     aws.Int64(1),
-    })
+   log.Println("Created instance", *runResult.Instances[0].InstanceId)
+   _ , errtag := svc.CreateTags(&ec2.CreateTagsInput{
+      Resources: []*string{runResult.Instances[0].InstanceId},
+      Tags: []*ec2.Tag {
+         {
+            Key:   aws.String("Name"),
+            Value: aws.String(NameInstancia),
+         },
+      },
+   })
 
-    if err != nil {
-        log.Println("Could not create instance", err)
-        return
-    }
-log.Println("Created instance", *runResult.Instances[0].InstanceId)
- _ , errtag := svc.CreateTags(&ec2.CreateTagsInput{
-        Resources: []*string{runResult.Instances[0].InstanceId},
-        Tags: []*ec2.Tag{
-            {
-                Key:   aws.String("Name"),
-                Value: aws.String(NameInstancia),
-            },
-        },
-    })
-     if errtag != nil {
-        log.Println("Could not create tags for instance", runResult.Instances[0].InstanceId, errtag)
-        return
-    }
+   if errtag != nil {
+      log.Println("Could not create tags for instance", runResult.Instances[0].InstanceId, errtag)
+      return
+   }
 
-    log.Println("Successfully tagged instance")
-
-
+   log.Println("Successfully tagged instance")
 }
 
 func CreateUsers(users []string) (map[string]string) {
