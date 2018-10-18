@@ -7,14 +7,19 @@ import (
     "github.com/aws/aws-sdk-go/service/ec2"
 )
 
-func CreateInstance(Imagem string, Instancia string, NameInstancia string) {
+func CreateInstance(instanceImage string, instanceType string, instanceName string, region string, keyName string) {
 
-   svc := ec2.New(session.New(&aws.Config{Region: aws.String("us-west-1")}))
+   svc := ec2.New(session.New(&aws.Config{Region: aws.String(region)}))
    runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
-      ImageId:      aws.String(Imagem),
-      InstanceType: aws.String(Instancia),
+      ImageId:      aws.String(instanceImage),
+      InstanceType: aws.String(instanceType),
       MinCount:     aws.Int64(1),
       MaxCount:     aws.Int64(1),
+      KeyName:      aws.String(keyName),
+      NetworkInterfaces: []*ec2.InstanceNetworkInterfaceSpecification {&ec2.InstanceNetworkInterfaceSpecification{
+         DeviceIndex:              aws.Int64(0),
+	 AssociatePublicIpAddress: aws.Bool(true),
+      }},
    })
 
    if err != nil {
@@ -28,7 +33,7 @@ func CreateInstance(Imagem string, Instancia string, NameInstancia string) {
       Tags: []*ec2.Tag {
          {
             Key:   aws.String("Name"),
-            Value: aws.String(NameInstancia),
+            Value: aws.String(instanceName),
          },
       },
    })
@@ -37,13 +42,30 @@ func CreateInstance(Imagem string, Instancia string, NameInstancia string) {
       log.Println("Could not create tags for instance", runResult.Instances[0].InstanceId, errtag)
       return
    }
-
    log.Println("Successfully tagged instance")
-}
 
+   instanceId := *runResult.Instances[0].InstanceId
+   state := "pending"
+   publicDns := ""
+   for state != "running" {
+      result, err := svc.DescribeInstances(nil)
+      if err != nil {
+         log.Println(err)
+      }
+      for _, reservation := range result.Reservations {
+         if (instanceId == *reservation.Instances[0].InstanceId) && (*reservation.Instances[0].State.Name == "running") {
+	    state = "running"
+	    publicDns = *reservation.Instances[0].PublicDnsName
+	 }
+      }
+   }
+   log.Println(publicDns)
+}
+/*
 func CreateUsers(users []string) (map[string]string) {
    // Com a instância já criada, cria os usuários
    // Talvez seja necessário uma variável global para guardar informações sobre a instância já criada.
-}
+  
+}*/
 
 
