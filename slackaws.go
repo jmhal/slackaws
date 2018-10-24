@@ -48,5 +48,15 @@ func main() {
    // Manda uma mensagem para cada usuário com a chave
    slack.SendKeys(workspaceToken)
 
+   // Envia mensagem para os usuários
+   for _, usuario := range users {
+      if usuario == "slackbot" {
+         continue
+      }
+      slack.SendMessageToUser(usuario, "Para se conectar no servidor use o seguinte comando:", workspaceToken)
+      nomeusuario := aws.RemoveSpecialChars(usuario)
+      slack.SendMessageToUser(usuario, "ssh -i " + nomeusuario + ".pem " + nomeusuario + "@" + publicDns, workspaceToken)
+   }
+
    return;
 }

@@ -8,6 +8,7 @@ import (
    "net"
    "os"
    "strings"
+   "regexp"
 
    "github.com/aws/aws-sdk-go/aws"
    "github.com/aws/aws-sdk-go/aws/session"
@@ -31,6 +32,16 @@ type SSHClient struct {
    Config *ssh.ClientConfig
    Host   string
    Port   int
+}
+
+// Função para tirar pontuação e outros caracteres do nome dos usuários.
+func RemoveSpecialChars(name string) (string) {
+   reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+   if err != nil {
+      log.Fatal(err)
+   }
+   processedString := reg.ReplaceAllString(name, "")
+   return processedString
 }
 
 func (client *SSHClient) RunCommand(cmd *SSHCommand) error {
@@ -176,13 +187,14 @@ func CreateUsers(url string, key string, usuarios []string) {
       if (usuario == "slackbot") {
          continue
       }
-      file, err := os.Create("./" + usuario + ".pem")
+      nomeusuario := RemoveSpecialChars(usuario)
+      file, err := os.Create("./" + nomeusuario + ".pem")
       if err != nil {
          fmt.Println(err)
       }
-      log.Printf("Creating user: %s\n", usuario)
+      log.Printf("Creating user: %s\n", nomeusuario)
       cmd := &SSHCommand{
-         Path:   "sudo ./createUsers.sh " + usuario,
+         Path:   "sudo ./createUsers.sh " + nomeusuario,
          Env:    []string{"LC_DIR=/"},
          Stdin:  os.Stdin,
          Stdout: file,

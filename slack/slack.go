@@ -6,6 +6,7 @@ import (
    "log"
    bluele "github.com/bluele/slack"
   "path/filepath"
+  "github.com/jmhal/slackaws/aws"
 )
 
 func UsersList(token string) ([]string) {
@@ -48,12 +49,13 @@ func SendKeys(token string) {
          continue
       }
       log.Println("Sending Key for User: " + user.Name)
-      uploadFilePath := "./" + user.Name +".pem"
+      nomeusuario := aws.RemoveSpecialChars(user.Name)
+      uploadFilePath := "./" + nomeusuario +".pem"
       info, err := api.FilesUpload(&bluele.FilesUploadOpt {
          Filepath: uploadFilePath,
          Filetype: "text",
          Filename: filepath.Base(uploadFilePath),
-         Title:    "upload test",
+         Title:    "Chave do Usuário",
          Channels: []string{user.Id},
       })
 
