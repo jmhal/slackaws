@@ -1,39 +1,52 @@
 // Slackaws: integrando AWS e Slack
 package main
 import (
-   "fmt"
+   "log"
+   "net"
+   "time"
    "os"
-//   "github.com/jmhal/slackaws/slack"
+   "github.com/jmhal/slackaws/slack"
    "github.com/jmhal/slackaws/aws"
 )
 
 func main() {
-   // Na primeira versão, vamos começar passando dois parâmetros:
-   // - a url do grupo no slack (por exemplo, orientadosjm.slack.com)
+   // Descrição dos parâmetros:
    // - o token de workspace da API para o mesmo grupo
+   // - identificador da imagem a ser usada (depende da Região da Amazon)
+   // - tipo da instância (t2.micro, t1.small, etc)
+   // - nome da instância (ser usado como tag)
+   // - região da AWS a ser usada
+   // - nome da chave a ser usada (supõe-se que existe como arquivo .pem no diretório da execução)
    workspaceToken := os.Args[1]
    imageId := os.Args[2]
    instanceType := os.Args[3]
    instanceName := os.Args[4]
    region := os.Args[5]
-   keyName := os.Args[6]
+   key := os.Args[6]
 
-   aws.CreateInstance(imageId, instanceType, instanceName, region, keyName)
-   fmt.Println(workspaceToken)
- 
+   // Cria a instância na nuvem.
+   publicDns := aws.CreateInstance(imageId, instanceType, instanceName, region, key)
+   log.Println("Instance Created with Address: " + publicDns)
+
+   // Verifica se o servidor SSH já está acessível.
+   conn, err := net.Dial("tcp", publicDns + ":22")
+   for err != nil {
+      log.Println("Esperando o estabelecimento do Servidor SSH.")
+      time.Sleep(5 * time.Second)
+      conn, err = net.Dial("tcp", publicDns + ":22")
+   }
+   log.Println("Servidor SSH Estabelecido.")
+   log.Printf("%s\n", conn)
+
    // Recupera uma slice com todos os usuários
-   // users := slack.UsersList(workspaceToken)
-   // fmt.Println(users)
+   users := slack.UsersList(workspaceToken)
+   log.Printf("Available Users: %s\n", users)
 
-   //slack.SendMessageToUser("joao.marcelo", "Teste direto do projeto", workspaceToken)
+   // Cria os usuários na instância
+   aws.CreateUsers(publicDns, key + ".pem", users)
 
-   // Voltaremos a ativar a sequência abaixo quando finalizarmos o código AWS.
-   // Recupera a URL de acesso público da instância e um map[nomedousuario->chave]
-   // publicUrl := aws.CreateInstance()
-   /// sshKeys := aws.CreateUsers(users)
+   // Manda uma mensagem para cada usuário com a chave
+   slack.SendKeys(workspaceToken)
 
-   // Manda uma mensagem para cada usuário com o conteúdo da chave
-   // for user, key := range sshKeys {
-   //   slack.SendMessage(user, key)
-   //}
+   return;
 }

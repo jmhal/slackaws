@@ -173,6 +173,9 @@ func CreateUsers(url string, key string, usuarios []string) {
    }
 
    for _, usuario := range usuarios {
+      if (usuario == "slackbot") {
+         continue
+      }
       file, err := os.Create("./" + usuario + ".pem")
       if err != nil {
          fmt.Println(err)

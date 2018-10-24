@@ -44,6 +44,9 @@ func SendKeys(token string) {
    }
 
    for _, user := range users {
+      if (user.Name == "slackbot") {
+         continue
+      }
       log.Println("Sending Key for User: " + user.Name)
       uploadFilePath := "./" + user.Name +".pem"
       info, err := api.FilesUpload(&bluele.FilesUploadOpt {
