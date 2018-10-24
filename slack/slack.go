@@ -3,8 +3,9 @@ package slack
 // Aqui estou importando o framework com o nome "bluele" para não entrar em conflito 
 // com o nosso próprio pacote que já tem o nome de "slack".
 import (
+   "log"
    bluele "github.com/bluele/slack"
-  	  "path/filepath"
+  "path/filepath"
 )
 
 func UsersList(token string) ([]string) {
@@ -35,28 +36,28 @@ func SendMessageToUser(name string, message string, token string) (string) {
 }
 
 func SendKeys(token string) {
-    api := bluele.New(token)
-    users, err := api.UsersList()
+   api := bluele.New(token)
+   users, err := api.UsersList()
 
+   if err != nil {
+      panic(err)
+   }
 
-    if err != nil {
-        panic(err)
-    }
-    for _, use := range users{
-        uploadFilePath := "./" + use.Name +".pem"
-    info, err := api.FilesUpload(&bluele.FilesUploadOpt{
-        Filepath: uploadFilePath,
-        Filetype: "text",
-        Filename: filepath.Base(uploadFilePath),
-        Title:    "upload test",
-        Channels: []string{use.Id},
-    })
-    if err != nil {
-        panic(err)
-    }
+   for _, user := range users {
+      log.Println("Sending Key for User: " + user.Name)
+      uploadFilePath := "./" + user.Name +".pem"
+      info, err := api.FilesUpload(&bluele.FilesUploadOpt {
+         Filepath: uploadFilePath,
+         Filetype: "text",
+         Filename: filepath.Base(uploadFilePath),
+         Title:    "upload test",
+         Channels: []string{user.Id},
+      })
 
-    fmt.Println(fmt.Sprintf("Completed file upload with the ID: '%s'.", info.ID))
-    }
-
+      if err != nil {
+         panic(err)
+      }
+      log.Println("Completed file upload with the ID: " + info.ID)
+   }
 }
 
